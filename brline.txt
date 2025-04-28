@@ -1,0 +1,83 @@
+#include <GL/glut.h>
+#include <iostream>
+#include <cstdlib>  // for abs()
+using namespace std;
+
+int x_start, y_start, x_end, y_end;
+
+void putPixel(int x, int y) {
+    glVertex2i(x, y);  // moved glBegin/glEnd to outer function
+}
+
+void bresenhamLineDrawing() {
+    int dx = abs(x_end - x_start);
+    int dy = abs(y_end - y_start);
+    int x = x_start;
+    int y = y_start;
+
+    int sx = (x_end >= x_start) ? 1 : -1;
+    int sy = (y_end >= y_start) ? 1 : -1;
+
+    glBegin(GL_POINTS);
+    putPixel(x, y);
+
+    if (dx > dy) {
+        int p = 2 * dy - dx;
+        for (int i = 0; i < dx; i++) {
+            x += sx;
+            if (p < 0) {
+                p += 2 * dy;
+            } else {
+                y += sy;
+                p += 2 * (dy - dx);
+            }
+            putPixel(x, y);
+        }
+    } else {
+        int p = 2 * dx - dy;
+        for (int i = 0; i < dy; i++) {
+            y += sy;
+            if (p < 0) {
+                p += 2 * dx;
+            } else {
+                x += sx;
+                p += 2 * (dx - dy);
+            }
+            putPixel(x, y);
+        }
+    }
+    glEnd();
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT);
+    glColor3f(1.0, 0.0, 0.0);  // red line
+    bresenhamLineDrawing();
+    glFlush();
+}
+
+void init() {
+    glClearColor(1.0, 1.0, 1.0, 1.0); // white background
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, 500, 0, 500);
+    glViewport(0, 0, 500, 500);
+}
+
+int main(int argc, char** argv) {
+    cout << "Enter x1, y1: ";
+    cin >> x_start >> y_start;
+    cout << "Enter x2, y2: ";
+    cin >> x_end >> y_end;
+
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_SINGLE | GLUT_RGB);
+    glutInitWindowSize(500, 500);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Bresenham's Line Drawing Algorithm");
+
+    init();
+    glutDisplayFunc(display);
+    glutMainLoop();
+    return 0;
+}
